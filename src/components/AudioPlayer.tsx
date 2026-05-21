@@ -2,34 +2,19 @@ import { Music } from 'lucide-react';
 import { useEffect, useRef, useState, MouseEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
-export default function AudioPlayer() {
+export default function AudioPlayer({ shouldPlay }: { shouldPlay?: boolean }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    // We cannot autoplay without user interaction in most modern browsers.
-    // So we wait for the first user interaction to play to make it seamless if desired,
-    // or just let them click it.
-    const handleInteraction = () => {
-      if (!isPlaying && audioRef.current) {
-        audioRef.current.play().then(() => {
-          setIsPlaying(true);
-        }).catch(() => {
-          // Play prevented
-        });
-        document.removeEventListener('click', handleInteraction);
-        document.removeEventListener('touchstart', handleInteraction);
-      }
-    };
-
-    document.addEventListener('click', handleInteraction);
-    document.addEventListener('touchstart', handleInteraction);
-
-    return () => {
-      document.removeEventListener('click', handleInteraction);
-      document.removeEventListener('touchstart', handleInteraction);
-    };
-  }, [isPlaying]);
+    if (shouldPlay && audioRef.current && !isPlaying) {
+      audioRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch(() => {
+        // Play prevented
+      });
+    }
+  }, [shouldPlay, isPlaying]);
 
   const togglePlay = (e: MouseEvent) => {
     e.stopPropagation();

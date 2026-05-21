@@ -1,10 +1,11 @@
-import { MapPin, CalendarHeart, Clock, HeartHandshake, Heart, Sparkles, Shirt, Gift, QrCode } from 'lucide-react';
-import { motion } from 'motion/react';
+import { MapPin, CalendarHeart, Clock, HeartHandshake, Heart, Sparkles, Shirt, Gift, QrCode, MailOpen } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import AudioPlayer from './components/AudioPlayer';
 import RSVPModal from './components/RSVPModal';
 import AddToCalendar from './components/AddToCalendar';
 import FloatingLights from './components/FloatingLights';
 import CountdownBlock from './components/CountdownBlock';
+import Envelope from './components/Envelope';
 import { useState } from 'react';
 
 export default function App() {
@@ -26,7 +27,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-ink text-pearl bokeh-bg overflow-x-hidden selection:bg-gold/30 selection:text-gold relative">
-      <AudioPlayer />
+      <AudioPlayer shouldPlay={true} />
       <RSVPModal isOpen={isRSVPOpen} onClose={() => setIsRSVPOpen(false)} />
 
       <main className="max-w-md mx-auto bg-ink/50 backdrop-blur-3xl shadow-2xl min-h-screen relative border-x border-gold/10 pb-32">
@@ -100,8 +101,10 @@ export default function App() {
                 <Heart className="stroke-[1.5]" size={24} />
               </div>
               <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-gold-light mb-4">Mis Padres</h3>
-              <p className="font-serif text-2xl text-pearl mb-1">Sergio García Rodríguez</p>
-              <p className="font-serif text-2xl text-pearl">Areli Jiménez Sauz</p>
+              <p className="font-serif text-2xl text-pearl mb-1">Sergio</p>
+              <p className="font-serif text-2xl text-pearl mb-6">García Rodríguez</p>
+              <p className="font-serif text-2xl text-pearl mb-1">Areli</p>
+              <p className="font-serif text-2xl text-pearl">Jiménez Sauz</p>
             </motion.div>
             
             <div className="w-16 h-px bg-gold/30 mx-auto mb-10" />
@@ -111,8 +114,10 @@ export default function App() {
                 <Sparkles className="stroke-[1.5]" size={24} />
               </div>
               <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-gold-light mb-4">Mis Padrinos</h3>
-              <p className="font-serif text-2xl text-pearl mb-1">Ana María Villarruel Lobato</p>
-              <p className="font-serif text-2xl text-pearl">Christian Omar García Rodríguez</p>
+              <p className="font-serif text-2xl text-pearl mb-1">Christian Omar</p>
+              <p className="font-serif text-2xl text-pearl mb-6">García Rodríguez</p>
+              <p className="font-serif text-2xl text-pearl mb-1">Ana María</p>
+              <p className="font-serif text-2xl text-pearl">Villarruel Lobato</p>
             </motion.div>
           </motion.section>
 
@@ -134,6 +139,18 @@ export default function App() {
                 <Clock size={16} className="text-gold" />
                 <span>16:00 hrs</span>
               </div>
+              
+              {/* Location Button */}
+              <a 
+                href="https://maps.app.goo.gl/7dTwnmiJMA8QC1r16"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-gold text-ink rounded-full font-sans text-xs tracking-widest uppercase overflow-hidden transition-transform hover:scale-105 shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)]"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-gold via-gold-light to-gold opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <MapPin size={16} className="relative z-10" />
+                <span className="relative z-10 font-bold">Ver Ubicación</span>
+              </a>
             </div>
           </motion.section>
 
@@ -191,12 +208,23 @@ export default function App() {
               <div className="w-12 h-12 rounded-full border border-gold/40 flex items-center justify-center mb-6 text-gold">
                 <Shirt className="stroke-[1.5]" size={24} />
               </div>
-              <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-gold-light mb-6">Código de vestimenta</h3>
-              <p className="font-sans text-sm text-pearl/80 leading-relaxed mb-4">
-                Ayúdanos a que Vanessa sea la única estrella dorada de la noche.
+              <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-gold-light mb-2">Código de vestimenta</h3>
+              <p className="font-serif text-3xl text-pearl mb-6">Formal</p>
+              
+              <div className="w-48 h-48 bg-pearl/5 rounded-xl mb-6 flex items-center justify-center p-2 overflow-hidden shadow-lg border border-gold/30">
+                <img 
+                  src="https://card-pi-kohl.vercel.app/image.png" 
+                  alt="Referencia de Vestimenta"
+                  className="w-full h-full object-cover rounded-lg"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+
+              <p className="font-sans text-sm text-pearl/80 leading-relaxed mb-4 px-4">
+                Vestimenta <span className="text-[#60a5fa] font-bold">Azul Marino</span> para los invitados.
               </p>
-              <p className="font-sans text-sm text-pearl/80 leading-relaxed">
-                ¡Cualquier otro color de vestimenta es bienvenido!
+              <p className="font-sans text-sm text-pearl/80 leading-relaxed px-4">
+                Nuestra quinceañera vestirá de color <span className="text-gold font-bold">dorado</span>.
               </p>
             </div>
           </motion.section>
@@ -215,7 +243,7 @@ export default function App() {
               </div>
               <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-gold-light mb-6">Mesa de Regalos</h3>
               <p className="font-sans text-sm text-pearl/80 leading-relaxed mb-6">
-                Tu presencia es mi mejor regalo, pero si deseas tener un detalle conmigo, puedes hacerlo aquí:
+                Para mí, tu presencia lo es todo! Si deseas darme un detalle y buscas alguna sugerencia, te dejo como opción mi mesa de regalos:
               </p>
               
               <div className="w-48 h-48 bg-pearl rounded-xl mb-6 flex items-center justify-center p-2 overflow-hidden shadow-lg border border-gold/30">
@@ -231,10 +259,16 @@ export default function App() {
                 href="https://www.sears.com.mx/Mesa-de-Regalos/237556/te-invito-a-mi-xv-anos-vanessa-celeste"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-transparent border border-gold text-gold rounded-full font-sans text-xs tracking-widest uppercase overflow-hidden transition-all duration-300 hover:bg-gold hover:text-ink shadow-[0_0_20px_rgba(212,175,55,0.1)] hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]"
+                className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-transparent border border-gold text-gold rounded-full font-sans text-xs tracking-widest uppercase overflow-hidden transition-all duration-300 hover:bg-gold hover:text-ink shadow-[0_0_20px_rgba(212,175,55,0.1)] hover:shadow-[0_0_30px_rgba(212,175,55,0.3)] mb-8"
               >
                 <span className="relative z-10 font-bold">Ver Mesa de Regalos</span>
               </a>
+
+              <p className="font-serif text-2xl text-gold-light mb-8 italic">ó</p>
+
+              <div className="w-full h-px bg-gold/20 mb-8" />
+
+              <Envelope />
             </div>
           </motion.section>
 
