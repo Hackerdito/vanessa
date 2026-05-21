@@ -7,13 +7,30 @@ export default function AudioPlayer({ shouldPlay }: { shouldPlay?: boolean }) {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    if (shouldPlay && audioRef.current && !isPlaying) {
-      audioRef.current.play().then(() => {
-        setIsPlaying(true);
-      }).catch(() => {
-        // Play prevented
-      });
+    const handleInteraction = () => {
+      if (audioRef.current && !isPlaying) {
+        audioRef.current.play().then(() => {
+          setIsPlaying(true);
+        }).catch(() => {
+          // Play prevented
+        });
+      }
+    };
+
+    if (shouldPlay) {
+      handleInteraction(); // Try autoplay first
     }
+
+    // Add listeners for next interactions if autoplay was blocked
+    document.addEventListener('click', handleInteraction, { once: true });
+    document.addEventListener('touchstart', handleInteraction, { once: true });
+    document.addEventListener('scroll', handleInteraction, { once: true });
+
+    return () => {
+      document.removeEventListener('click', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
+      document.removeEventListener('scroll', handleInteraction);
+    };
   }, [shouldPlay, isPlaying]);
 
   const togglePlay = (e: MouseEvent) => {
