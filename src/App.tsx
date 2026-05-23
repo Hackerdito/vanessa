@@ -6,10 +6,12 @@ import AddToCalendar from './components/AddToCalendar';
 import FloatingLights from './components/FloatingLights';
 import CountdownBlock from './components/CountdownBlock';
 import Envelope from './components/Envelope';
+import SplashScreen from './components/SplashScreen';
 import { useState } from 'react';
 
 export default function App() {
   const [isRSVPOpen, setIsRSVPOpen] = useState(false);
+  const [hasEntered, setHasEntered] = useState(false);
 
   // Animation variants
   const fadeIn = {
@@ -26,8 +28,13 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-ink text-pearl bokeh-bg overflow-x-hidden selection:bg-gold/30 selection:text-gold relative">
-      <AudioPlayer shouldPlay={true} />
+    <div className={`min-h-screen bg-ink text-pearl bokeh-bg overflow-x-hidden selection:bg-gold/30 selection:text-gold relative ${!hasEntered ? 'h-screen overflow-hidden' : ''}`}>
+      <AnimatePresence>
+        {!hasEntered && (
+          <SplashScreen onEnter={() => setHasEntered(true)} />
+        )}
+      </AnimatePresence>
+      <AudioPlayer shouldPlay={hasEntered} />
       <RSVPModal isOpen={isRSVPOpen} onClose={() => setIsRSVPOpen(false)} />
 
       <main className="max-w-md mx-auto bg-ink/50 backdrop-blur-3xl shadow-2xl min-h-screen relative border-x border-gold/10 pb-32">
