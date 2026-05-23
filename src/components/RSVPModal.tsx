@@ -1,15 +1,34 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Check } from 'lucide-react';
 import { useState, FormEvent } from 'react';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 export default function RSVPModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  
+  const [name, setName] = useState('');
+  const [attendance, setAttendance] = useState('yes');
+  const [guests, setGuests] = useState('1');
+  const [message, setMessage] = useState('');
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setStatus('submitting');
-    // Simulate network request
-    setTimeout(() => setStatus('success'), 1500);
+    
+    try {
+      await addDoc(collection(db, 'confirmaciones'), {
+        name,
+        attendance: attendance === 'yes',
+        guests: parseInt(guests, 10),
+        message,
+        createdAt: serverTimestamp()
+      });
+      setStatus('success');
+    } catch (error) {
+      console.error("Error saving RSVP", error);
+      setStatus('error');
+    }
   };
 
   return (
@@ -28,11 +47,11 @@ export default function RSVPModal({ isOpen, onClose }: { isOpen: boolean; onClos
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-x-0 bottom-0 z-50 w-full max-w-md mx-auto bg-pearl rounded-t-3xl shadow-2xl border-t border-gold/30 p-6 sm:p-8"
+            className="fixed inset-x-0 bottom-0 z-50 w-full max-w-md mx-auto bg-pearl rounded-t-3xl shadow-2xl border-t border-gold/30 p-6 sm:p-8 max-h-[90vh] overflow-y-auto"
           >
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 p-2 text-ink/50 hover:text-ink transition-colors"
+              className="absolute top-4 right-4 p-2 text-ink/50 hover:text-ink transition-colors z-10"
             >
               <X size={24} />
             </button>
@@ -47,7 +66,7 @@ export default function RSVPModal({ isOpen, onClose }: { isOpen: boolean; onClos
                   <Check size={32} />
                 </div>
                 <h3 className="font-serif text-2xl text-ink mb-2">¡Gracias por confirmar!</h3>
-                <p className="font-sans text-ink/70">Tu presencia hará de este día algo inolvidable.</p>
+                <p className="font-sans text-ink/70">Hemos registrado tu respuesta, ¡mil gracias!</p>
                 <button
                   onClick={onClose}
                   className="mt-8 px-8 py-3 bg-ink text-pearl rounded-full font-sans text-sm tracking-widest uppercase hover:bg-ink/90 transition-colors"
@@ -58,11 +77,17 @@ export default function RSVPModal({ isOpen, onClose }: { isOpen: boolean; onClos
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <h3 className="font-serif text-2xl text-ink text-center mb-1">Confirmar Asistencia</h3>
-                  <p className="font-sans text-xs text-center text-ink/60 uppercase tracking-widest mb-8">
+                  <h3 className="font-serif text-2xl text-ink text-center mb-1 mt-2">Confirmar Asistencia</h3>
+                  <p className="font-sans text-xs text-center text-ink/60 uppercase tracking-widest mb-6">
                     1 de Agosto, 2026
                   </p>
                 </div>
+
+                {status === 'error' && (
+                  <div className="bg-red-50 text-red-500 font-sans text-sm p-3 rounded-lg border border-red-200 text-center">
+                    Hubo un problema al guardar. Intenta de nuevo por favor.
+                  </div>
+                )}
 
                 <div className="space-y-4">
                   <div>
@@ -72,6 +97,8 @@ export default function RSVPModal({ isOpen, onClose }: { isOpen: boolean; onClos
                     <input
                       required
                       type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                       className="w-full px-4 py-3 text-ink bg-white/50 border border-gold/30 rounded-xl focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 font-sans transition-all"
                       placeholder="Ej. María Fernanda López"
                     />
@@ -81,24 +108,34 @@ export default function RSVPModal({ isOpen, onClose }: { isOpen: boolean; onClos
                     <label className="block font-sans text-xs uppercase tracking-wider text-ink/70 mb-2 ml-1">
                       Asistencia
                     </label>
-                    <select required className="w-full px-4 py-3 text-ink bg-white/50 border border-gold/30 rounded-xl focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 font-sans appearance-none">
-                      <option value="">Selecciona una opción</option>
-                      <option value="yes">Sí, asistiré con gusto</option>
+                    <select 
+                      required 
+                      value={attendance}
+                      onChange={(e) => setAttendance(e.target.value)}
+                      className="w-full px-4 py-3 text-ink bg-white/50 border border-gold/30 rounded-xl focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 font-sans appearance-none"
+                    >
+                      <option value="yes">Sí asistiré</option>
                       <option value="no">No podré asistir</option>
                     </select>
                   </div>
 
-                  <div>
-                    <label className="block font-sans text-xs uppercase tracking-wider text-ink/70 mb-2 ml-1">
-                      Número de personas
-                    </label>
-                    <select required className="w-full px-4 py-3 text-ink bg-white/50 border border-gold/30 rounded-xl focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 font-sans appearance-none">
-                      <option value="">Selecciona la cantidad</option>
-                      {Array.from({ length: 20 }, (_, i) => (
-                        <option key={i + 1} value={i + 1}>{i + 1}</option>
-                      ))}
-                    </select>
-                  </div>
+                  {attendance === 'yes' && (
+                    <div>
+                      <label className="block font-sans text-xs uppercase tracking-wider text-ink/70 mb-2 ml-1">
+                        Número de acompañantes
+                      </label>
+                      <select 
+                        required 
+                        value={guests}
+                        onChange={(e) => setGuests(e.target.value)}
+                        className="w-full px-4 py-3 text-ink bg-white/50 border border-gold/30 rounded-xl focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 font-sans appearance-none"
+                      >
+                        {Array.from({ length: 10 }, (_, i) => (
+                          <option key={i} value={i}>{i} acompañantes</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   <div>
                     <label className="block font-sans text-xs uppercase tracking-wider text-ink/70 mb-2 ml-1">
@@ -106,6 +143,8 @@ export default function RSVPModal({ isOpen, onClose }: { isOpen: boolean; onClos
                     </label>
                     <textarea
                       rows={3}
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
                       className="w-full px-4 py-3 text-ink bg-white/50 border border-gold/30 rounded-xl focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 font-sans resize-none transition-all"
                       placeholder="Escribe tus mejores deseos para Vanessa..."
                     />
