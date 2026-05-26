@@ -228,10 +228,10 @@ export default function Invitation() {
               </div>
 
               <p className="font-sans text-sm text-pearl/80 leading-relaxed mb-4 px-4">
-                Vestimenta <span className="text-[#60a5fa] font-bold">Azul Marino</span> para los invitados.
+                A nuestros invitados les sugerimos vestir en tonos <span className="text-[#60a5fa] font-bold">azul marino</span>.
               </p>
               <p className="font-sans text-sm text-pearl/80 leading-relaxed px-4">
-                Nuestra quinceañera vestirá de color <span className="text-gold font-bold">dorado</span>.
+                Nuestra quinceañera lucirá el color <span className="text-gold font-bold">dorado</span> como tono exclusivo de la celebración. <span className="inline-block ml-1">✨</span>
               </p>
             </div>
           </motion.section>
